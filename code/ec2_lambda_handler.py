@@ -1,5 +1,7 @@
 import boto3
 import os
+import logging as logger
+
 
 # Reading environment variables
 region = os.getenv("REGION")
@@ -11,44 +13,38 @@ stop_tag_value = os.getenv("STOP_TAG_VALUE")
 # Initializing the EC2 boto client
 ec2 = boto3.client('ec2', region_name=region)
 
-# Getting instances tagged with Start tag
-start_instances_response = ec2.describe_instances(Filters=[
-    {
-        'Name': f'{start_tag_name}',
-        'Values': [
-            f'{start_tag_value}',
-        ]
-    },
-])
 
-# Getting instances tagged with Start tag
-stop_instances_response = ec2.describe_instances(Filters=[
-    {
-        'Name': f'{stop_tag_name}',
-        'Values': [
-            f'{stop_tag_value}',
-        ]
-    },
-])
+def _get_instances_by_tag(tag_name: str, tag_value: str):
+    return ec2.describe_instances(Filters=[
+        {
+            'Name': f'{tag_name}',
+            'Values': [
+                f'{tag_value}',
+            ]
+        },
+    ])
 
 
-def _get_instance_ids(response):
-    instances = []
+def _get_instance_ids(tag_name: str, tag_value: str):
+    response = _get_instances_by_tag(tag_name, tag_value)
+    instance_ids = []
     for reservation in response["Reservations"]:
         for instance in reservation["Instances"]:
-            instances.append(instance["InstanceId"])
-    return instances
-
-
-start_instances = _get_instance_ids(start_instances_response)
-stop_instances = _get_instance_ids(stop_instances_response)
+            instance_ids.append(instance["InstanceId"])
+    return instance_ids
 
 
 def stop(event, context):
-    ec2.stop_instances(InstanceIds=stop_instances)
-    print('stopped instances: ' + str(stop_instances))
+    tag_name = os.getenv("STOP_TAG_NAME")
+    tag_value = os.getenv("STOP_TAG_VALUE")
+    instances = _get_instance_ids(tag_name, tag_value)
+    ec2.stop_instances(InstanceIds=instances)
+    logger.info('stopped instances: ' + str(instances))
 
 
 def start(event, context):
-    ec2.start_instances(InstanceIds=start_instances)
-    print('started  instances: ' + str(start_instances))
+    tag_name = os.getenv("START_TAG_NAME")
+    tag_value = os.getenv("START_TAG_VALUE")
+    instances = _get_instance_ids(tag_name, tag_value)
+    ec2.start_instances(InstanceIds=instances)
+    logger.info('started  instances: ' + str(instances))
