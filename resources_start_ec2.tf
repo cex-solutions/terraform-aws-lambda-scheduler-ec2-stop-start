@@ -24,14 +24,14 @@ resource "aws_cloudwatch_event_rule" "ec2_start_rule" {
 
 resource "aws_cloudwatch_event_target" "ec2_start_rule_target" {
   count = var.start_ec2_enabled ? 1 : 0
-  rule  = aws_cloudwatch_event_rule.ec2_start_rule.name
-  arn   = aws_lambda_function.start_ec2_lambda.arn
+  rule  = aws_cloudwatch_event_rule.ec2_start_rule[count.index].name
+  arn   = aws_lambda_function.start_ec2_lambda[count.index].arn
 }
 
 resource "aws_lambda_permission" "allow_cloudwatch_start" {
   count         = var.start_ec2_enabled ? 1 : 0
   statement_id  = "AllowExecutionFromCloudWatch"
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.start_ec2_lambda.function_name
+  function_name = aws_lambda_function.start_ec2_lambda[count.index].function_name
   principal     = "events.amazonaws.com"
 }

@@ -24,14 +24,14 @@ resource "aws_cloudwatch_event_rule" "ec2_stop_rule" {
 
 resource "aws_cloudwatch_event_target" "ec2_stop_rule_target" {
   count = var.stop_ec2_enabled ? 1 : 0
-  rule  = aws_cloudwatch_event_rule.ec2_stop_rule.name
-  arn   = aws_lambda_function.stop_ec2_lambda.arn
+  rule  = aws_cloudwatch_event_rule.ec2_stop_rule[count.index].name
+  arn   = aws_lambda_function.stop_ec2_lambda[count.index].arn
 }
 
 resource "aws_lambda_permission" "allow_cloudwatch_stop" {
   count         = var.stop_ec2_enabled ? 1 : 0
   statement_id  = "AllowExecutionFromCloudWatch"
   action        = "lambda:InvokeFunction"
-  function_name = aws_lambda_function.stop_ec2_lambda.function_name
+  function_name = aws_lambda_function.stop_ec2_lambda[count.index].function_name
   principal     = "events.amazonaws.com"
 }
