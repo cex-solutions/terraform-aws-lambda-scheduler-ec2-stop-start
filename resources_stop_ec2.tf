@@ -5,7 +5,7 @@ resource "aws_lambda_function" "stop_ec2_lambda" {
   role          = aws_iam_role.stop_start_ec2_role.arn
   handler       = "ec2_lambda_handler.stop"
 
-  source_code_hash = filebase64sha256("ec2_lambda_handler.zip")
+  source_code_hash = filebase64sha256("${path.module}/ec2_lambda_handler.zip")
 
   runtime     = local.python_version
   memory_size = local.memory_size
