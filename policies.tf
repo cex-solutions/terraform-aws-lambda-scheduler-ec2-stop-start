@@ -1,5 +1,5 @@
 resource "aws_iam_policy" "stop_start_ec2_policy" {
-  name = var.prefix_name ? "${var.prefix_name}-StopStartEC2Policy": "StopStartEC2Policy"
+  name = var.prefix_name != null  ? "${var.prefix_name}-StopStartEC2Policy": "StopStartEC2Policy"
   path = "/"
   description = "IAM policy for stop and start EC2 from a lambda"
 
@@ -31,8 +31,7 @@ EOF
 }
 
 resource "aws_iam_role" "stop_start_ec2_role" {
-  name = var.prefix_name ? "${var.prefix_name}-StopStartEC2Role" : "StopStartEC2Role"
-
+  name = var.prefix_name != null ? "${var.prefix_name}-StopStartEC2Role" : "StopStartEC2Role"
   assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",
