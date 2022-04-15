@@ -1,6 +1,6 @@
 resource "aws_lambda_function" "start_ec2_lambda" {
   count         = var.start_ec2_enabled ? 1 : 0
-  filename      = "ec2_lambda_handler.zip"
+  filename      = "${path.module}/ec2_lambda_handler.zip"
   function_name = var.prefix_name ? "${var.prefix_name}-startEC2Lambda" : "startEC2Lambda"
   role          = aws_iam_role.stop_start_ec2_role.arn
   handler       = "ec2_lambda_handler.start"
