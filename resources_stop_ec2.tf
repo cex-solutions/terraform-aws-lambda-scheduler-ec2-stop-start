@@ -1,11 +1,11 @@
 resource "aws_lambda_function" "stop_ec2_lambda" {
   count         = var.stop_ec2_enabled ? 1 : 0
-  filename      = "${path.module}/ec2_lambda_handler.zip"
+  filename      = data.archive_file.python_lambda_package.output_path
   function_name = var.prefix_name ? "${var.prefix_name}-stopEC2Lambda" : "stopEC2Lambda"
   role          = aws_iam_role.stop_start_ec2_role.arn
   handler       = "ec2_lambda_handler.stop"
 
-  source_code_hash = filebase64sha256("${path.module}/ec2_lambda_handler.zip")
+  source_code_hash = filebase64sha256(data.archive_file.python_lambda_package.output_path)
 
   runtime     = local.python_version
   memory_size = local.memory_size
