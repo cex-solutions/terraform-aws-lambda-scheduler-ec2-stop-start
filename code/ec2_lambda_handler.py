@@ -1,7 +1,10 @@
 import boto3
 import os
-import logging as logger
+import logging
 
+
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 # Reading environment variables
 region = os.getenv("REGION")
